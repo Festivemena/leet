@@ -24,8 +24,8 @@ export async function POST(req) {
     try {
         const body = await req.json(); // Parse incoming JSON data
         
-        if (!body.sensorValue || !body.timestamp) {
-            return Response.json({ error: "Missing sensorValue or timestamp" }, { status: 400 });
+        if (!body.sensorValue) {
+            return Response.json({ error: "Missing sensorValue" }, { status: 400 });
         }
 
         await client.connect();
