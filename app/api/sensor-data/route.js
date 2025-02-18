@@ -1,14 +1,22 @@
-import { promises as fs } from 'fs';
-const filePath = './sensorData.json';
+import { MongoClient } from 'mongodb';
+
+const uri = "mongodb+srv://festusekuruemu:73rjiX8vhIH0wdYR@clusweer.lrsqv.mongodb.net/?retryWrites=true&w=majority&appName=Clusweer";
+const client = new MongoClient(uri);
+const dbName = "sensorDatabase";
+const collectionName = "sensorData";
 
 export async function GET() {
     try {
-        const data = await fs.readFile(filePath, 'utf-8');
-        const sensorData = JSON.parse(data);
-        const latestData = sensorData.length > 0 ? sensorData[sensorData.length - 1] : null;
-        return Response.json({ latestData });
+        await client.connect();
+        const db = client.db(dbName);
+        const collection = db.collection(collectionName);
+
+        const latestData = await collection.find().sort({ timestamp: -1 }).limit(1).toArray();
+        return Response.json({ latestData: latestData.length > 0 ? latestData[0] : null });
     } catch (error) {
         return Response.json({ error: "No data available" }, { status: 404 });
+    } finally {
+        await client.close();
     }
 }
 
@@ -16,28 +24,22 @@ export async function POST(req) {
     try {
         const body = await req.json(); // Parse incoming JSON data
         
-        if (!body.sensorValue) {
-            return Response.json({ error: "Missing sensorValue" }, { status: 400 });
+        if (!body.sensorValue || !body.timestamp) {
+            return Response.json({ error: "Missing sensorValue or timestamp" }, { status: 400 });
         }
 
-        let sensorData = [];
-        try {
-            const data = await fs.readFile(filePath, 'utf-8');
-            sensorData = JSON.parse(data);
-            if (!Array.isArray(sensorData)) sensorData = [];
-        } catch (error) {
-            sensorData = [];
-        }
+        await client.connect();
+        const db = client.db(dbName);
+        const collection = db.collection(collectionName);
 
-        // Add new entry to the array
-        sensorData.push(body);
-
-        // Store the updated sensor data array in the file
-        await fs.writeFile(filePath, JSON.stringify(sensorData, null, 2));
+        // Insert new sensor data
+        const result = await collection.insertOne(body);
         console.log("Received sensor data:", body);
 
-        return Response.json({ message: "Sensor data received successfully", receivedData: body });
+        return Response.json({ message: "Sensor data received successfully", insertedId: result.insertedId });
     } catch (error) {
         return Response.json({ error: "Invalid request" }, { status: 400 });
+    } finally {
+        await client.close();
     }
 }
