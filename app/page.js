@@ -1,6 +1,5 @@
 "use client"
 import { useState, useEffect } from "react";
-import axios from "axios";
 
 export default function IoTControl() {
   const [sensorData, setSensorData] = useState(null);
@@ -9,8 +8,10 @@ export default function IoTControl() {
   useEffect(() => {
     const fetchSensorData = async () => {
       try {
-        const response = await axios.get("/api/sensor-data");
-        setSensorData(response.data);
+        const response = await fetch("https://leet-ten.vercel.app/api/sensor-data");
+        const data = await response.json();
+        setSensorData(data.latestData.sensorValue);
+        console.log(data.latestData.sensorValue);
       } catch (error) {
         console.error("Error fetching sensor data", error);
       }
@@ -24,11 +25,19 @@ export default function IoTControl() {
   const toggleMode = async () => {
     const newMode = mode === "auto" ? "manual" : "auto";
     setMode(newMode);
-    await axios.post("/api/mode", { mode: newMode });
+    await fetch("https://leet-ten.vercel.app/api/mode", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode: newMode })
+    });
   };
 
   const sendCommand = async (command) => {
-    await axios.post("/api/control", { command });
+    await fetch("https://leet-ten.vercel.app/api/control", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ command })
+    });
   };
 
   return (
@@ -37,7 +46,7 @@ export default function IoTControl() {
       <div className="bg-white p-4 rounded-lg shadow-md w-96 text-center">
         <h2 className="text-lg font-semibold">Sensor Values</h2>
         {sensorData ? (
-          <p className="text-xl mt-2">{sensorData.value}</p>
+          <p className="text-xl mt-2">{sensorData.sensorValue}</p>
         ) : (
           <p className="text-gray-500">Loading...</p>
         )}
