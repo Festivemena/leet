@@ -46,7 +46,7 @@ export default function IoTControl() {
       <div className="bg-white p-4 rounded-lg shadow-md w-96 text-center">
         <h2 className="text-lg font-semibold">Sensor Values</h2>
         {sensorData ? (
-          <p className="text-xl mt-2">{sensorData.sensorValue}</p>
+          <p className="text-xl mt-2">{sensorData}</p>
         ) : (
           <p className="text-gray-500">Loading...</p>
         )}
