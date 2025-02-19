@@ -60,8 +60,8 @@ export default function IoTControl() {
       </button>
       
       <div className="flex space-x-4 mt-6">
-        <button onClick={() => sendCommand("action1")} className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md">Open</button>
-        <button onClick={() => sendCommand("action2")} className="px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-md">Close</button>
+        <button onClick={() => sendCommand("open")} className="px-4 py-2 bg-green-500 text-white rounded-lg shadow-md">Open</button>
+        <button onClick={() => sendCommand("close")} className="px-4 py-2 bg-yellow-500 text-white rounded-lg shadow-md">Close</button>
         {/* <button onClick={() => sendCommand("action3")} className="px-4 py-2 bg-red-500 text-white rounded-lg shadow-md">Action 3</button> */}
       </div>
     </div>
